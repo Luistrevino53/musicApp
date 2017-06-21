@@ -101,7 +101,28 @@ function deleteArtist(req, res){
       if(!artist){
         res.status(404).send({message: 'No se pudo encontrar el artista'});
       }else{
-        res.status(200).send({message: 'Artista eliminado', artist: artist});
+        Album.find({artist: artist._id}).remove((err, albumRemoved)=>{
+          if(err){
+            res.status(500).send({message: 'Error al eliminar artista'});
+          }else{
+            if(!albumRemoved){
+              res.status(404).send({message: 'No se pudo encontrar el artista'});
+            }else{
+
+              Song.find({album: albumRemoved._id}).remove((err, songRemoved)=>{
+                if(err){
+                  res.status(500).send({message: 'Error al eliminar artista'});
+                }else{
+                  if(!songRemoved){
+                    res.status(404).send({message: 'No se pudo encontrar el artista'});
+                  }else{
+                    res.status(200).send({message: 'Artista eliminado', artist: artist});
+                    }
+                  }
+              }) ;
+            }
+          }
+        });
       }
     }
   });
